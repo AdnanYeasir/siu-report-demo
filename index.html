@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYC TLC - SIU Investigative Report (Enf 100-035)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: #0f172a;
+      color: #0f172a;
+    }
+
+    /* Print Specific Formatting */
+    @page {
+      size: letter portrait;
+      margin: 0.3in 0.4in;
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .report-page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0.25in 0.35in !important;
+        width: 100% !important;
+        height: auto !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+      .report-page:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+      }
+      input, textarea {
+        background: transparent !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+
+    /* Standard Letter Page Simulation */
+    .report-page {
+      width: 8.5in;
+      min-height: 11in;
+      background: #ffffff;
+      padding: 0.35in 0.45in;
+      margin: 0 auto 2.5rem auto;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    /* Clean Borders and Inputs */
+    .border-grid {
+      border: 1px solid #334155;
+    }
+    .border-grid td, .border-grid th {
+      border: 1px solid #64748b;
+    }
+
+    /* Native Date & Time picker click optimizations */
+    input[type="date"], input[type="time"] {
+      cursor: pointer;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.75;
+      padding: 2px;
+      border-radius: 3px;
+      transition: background-color 0.15s ease;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover,
+    input[type="time"]::-webkit-calendar-picker-indicator:hover {
+      background-color: #e2e8f0;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="py-6 px-2 min-h-screen text-slate-900">
+
+  <!-- Top Interactive Action Bar (Hidden when printing/saving PDF) -->
+  <header class="no-print max-w-[8.5in] mx-auto mb-6 bg-slate-800 text-white rounded-xl shadow-lg border border-slate-700 p-4">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-lg">
+          TLC
+        </div>
+        <div>
+          <h1 class="font-bold text-base tracking-wide text-slate-100 flex items-center gap-2">
+            NYC TLC SIU Investigative Report Generator
+            <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-normal">Active Form</span>
+          </h1>
+          <p class="text-xs text-slate-400">Form # - Enf 100-035 • Native Calendar & Time Pickers Enabled</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="populateDemoData()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition flex items-center gap-1.5 shadow-sm border border-slate-600">
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Fill Demo Data
+        </button>
+        <button type="button" onclick="saveCaseFile()" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition flex items-center gap-1.5 shadow-sm border border-slate-600" title="Save filled report data to your computer">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+          Save Case Data
+        </button>
+        <button type="button" onclick="document.getElementById('file-loader').click()" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition flex items-center gap-1.5 shadow-sm border border-slate-600" title="Load an existing saved report">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Open Case
+        </button>
+        <input type="file" id="file-loader" class="hidden" accept=".json" onchange="loadCaseFile(event)">
+        <button type="button" onclick="toggleLockForm()" id="lock-btn" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition flex items-center gap-1.5 shadow-sm border border-slate-600" title="Lock form fields for clean official printing">
+          <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span id="lock-btn-text">Lock Form</span>
+        </button>
+        <button type="button" onclick="openDeployGuide()" class="px-3 py-1.5 rounded-lg bg-purple-700/80 hover:bg-purple-600 text-purple-100 text-xs font-medium transition flex items-center gap-1.5 shadow-sm border border-purple-500/40" title="How to host and share this link">
+          <svg class="w-3.5 h-3.5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          How to Create Link
+        </button>
+        <button type="button" onclick="clearForm()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition flex items-center gap-1.5 shadow-sm border border-slate-600">
+          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          Clear
+        </button>
+        <button type="button" onclick="prepareAndPrint()" class="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-blue-900/40">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Download / Save PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="no-print fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none bg-slate-900 border border-slate-700 text-slate-100 text-xs px-4 py-2.5 rounded-lg shadow-xl flex items-center gap-2">
+    <span id="toast-icon"></span>
+    <span id="toast-msg">Notification</span>
+  </div>
+
+  <form id="siu-form" onsubmit="event.preventDefault();">
+
+    <!-- ========================================== PAGE 1 ========================================== -->
+    <div class="report-page flex flex-col justify-between" id="report-page-1">
+      <div>
+        <!-- Official Document Header with Scalable Vector Seals -->
+        <div class="flex items-center justify-between pb-2 mb-2 border-b-2 border-slate-900">
+          <!-- Left Badge: NYC TLC Police Shield -->
+          <div class="w-16 h-20 flex-shrink-0 flex items-center justify-center">
+            <svg viewBox="0 0 100 120" class="w-full h-full drop-shadow-sm">
+              <path d="M50 2 C75 2, 95 10, 95 28 C95 72, 70 102, 50 118 C30 102, 5 72, 5 28 C5 10, 25 2, 50 2 Z" fill="#1e293b" stroke="#ca8a04" stroke-width="3"/>
+              <path d="M50 7 C70 7, 88 14, 88 30 C88 68, 66 95, 50 109 C34 95, 12 68, 12 30 C12 14, 30 7, 50 7 Z" fill="#0f172a"/>
+              <path d="M50 20 L56 36 L73 36 L60 47 L65 63 L50 53 L35 63 L40 47 L27 36 L44 36 Z" fill="#eab308"/>
+              <text x="50" y="78" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="900" letter-spacing="1">TLC</text>
+              <text x="50" y="89" text-anchor="middle" fill="#ca8a04" font-size="8" font-weight="bold" letter-spacing="0.5">POLICE</text>
+              <text x="50" y="99" text-anchor="middle" fill="#94a3b8" font-size="6.5">NYC</text>
+            </svg>
+          </div>
+
+          <!-- Center Official Headings -->
+          <div class="text-center flex-1 px-3">
+            <h1 class="text-sm font-extrabold uppercase tracking-wide text-slate-900 leading-tight">
+              New York City Taxi and Limousine Commission
+            </h1>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-800 leading-tight mt-0.5">
+              Uniformed Services Bureau
+            </h2>
+            <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-700 leading-tight mt-0.5">
+              Special Investigations Unit
+            </h3>
+            <p class="text-[8.5px] text-slate-600 mt-1 font-medium">
+              31-89 123rd Street, College Point, NY 11354 &bull; Phone: 718-267-4503 &bull; Fax: 718-267-4573
+            </p>
+          </div>
+
+          <!-- Right Badge: NYC Taxi & Limousine SIU Patch -->
+          <div class="w-16 h-20 flex-shrink-0 flex items-center justify-center">
+            <svg viewBox="0 0 100 120" class="w-full h-full drop-shadow-sm">
+              <rect x="5" y="15" width="90" height="90" rx="16" fill="#1e293b" stroke="#ca8a04" stroke-width="3"/>
+              <path d="M10 25 Q50 5 90 25 L90 85 Q50 115 10 85 Z" fill="#0f172a"/>
+              <text x="50" y="32" text-anchor="middle" fill="#ca8a04" font-size="7" font-weight="bold" letter-spacing="0.5">CITY OF NEW YORK</text>
+              <text x="50" y="44" text-anchor="middle" fill="#f8fafc" font-size="7.5" font-weight="bold">TAXI & LIMOUSINE</text>
+              <circle cx="50" cy="65" r="16" fill="#ca8a04" opacity="0.2"/>
+              <text x="50" y="73" text-anchor="middle" fill="#facc15" font-size="18" font-weight="900" letter-spacing="1">SIU</text>
+              <path d="M30 85 L70 85" stroke="#ca8a04" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Case Information Top Grid -->
+        <table class="w-full border-collapse border-grid text-[10px] mb-2">
+          <tbody>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[14%] whitespace-nowrap">TLC Case #:</td>
+              <td class="p-1 w-[20%]">
+                <input type="text" name="tlc_case_num" id="tlc_case_num" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[16%] whitespace-nowrap">Requesting Agency:</td>
+              <td class="p-1 w-[22%]">
+                <input type="text" name="requesting_agency" id="requesting_agency" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[14%] whitespace-nowrap">Agency Report #:</td>
+              <td class="p-1 w-[14%]">
+                <input type="text" name="agency_report_num" id="agency_report_num" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Agency/Unit/Squad:</td>
+              <td colspan="2" class="p-1">
+                <input type="text" name="agency_unit_squad" id="agency_unit_squad" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Rank / Title / Name:</td>
+              <td colspan="2" class="p-1">
+                <input type="text" name="officer_rank_name" id="officer_rank_name" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Incident Type:</td>
+              <td class="p-1">
+                <input type="text" name="incident_type" id="incident_type" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <!-- Direct Native Date Picker Field -->
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap flex items-center justify-between">
+                <span>Date of Incident:</span>
+                <span class="text-[9px] text-blue-600 no-print cursor-pointer hover:underline" onclick="document.getElementById('date_of_incident').showPicker()">📅</span>
+              </td>
+              <td class="p-1">
+                <input type="date" name="date_of_incident" id="date_of_incident" onclick="this.showPicker()" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900 bg-transparent">
+              </td>
+              <!-- Direct Native Time Picker Field -->
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Time of Incident:</td>
+              <td class="p-1">
+                <input type="time" name="time_of_incident" id="time_of_incident" onclick="this.showPicker()" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900 bg-transparent">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Section: Location of Offense -->
+        <div class="bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-[#1e293b]">
+          Location of Offense:
+        </div>
+        <table class="w-full border-collapse border-grid text-[10px] mb-2 border-t-0">
+          <tbody>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[24%] whitespace-nowrap">Location / Address of Incident:</td>
+              <td colspan="5" class="p-1">
+                <input type="text" name="location_address" id="location_address" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[12%] whitespace-nowrap">Borough:</td>
+              <td class="p-1 w-[22%]">
+                <select name="borough" id="borough" class="w-full text-[10px] outline-none bg-transparent font-medium text-slate-900">
+                  <option value="">Select Borough...</option>
+                  <option value="Manhattan">Manhattan</option>
+                  <option value="Brooklyn">Brooklyn</option>
+                  <option value="Queens">Queens</option>
+                  <option value="Bronx">Bronx</option>
+                  <option value="Staten Island">Staten Island</option>
+                </select>
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[15%] whitespace-nowrap">Premises Type:</td>
+              <td class="p-1 w-[20%]">
+                <input type="text" name="premises_type" id="premises_type" placeholder="e.g. Street / Sidewalk / Airport" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[15%] whitespace-nowrap">Precinct/Sector:</td>
+              <td class="p-1 w-[16%]">
+                <input type="text" name="precinct_sector" id="precinct_sector" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Section: Narrative -->
+        <div class="bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-[#1e293b]">
+          Narrative:
+        </div>
+        <table class="w-full border-collapse border-grid text-[10px] mb-2 border-t-0">
+          <tbody>
+            <tr>
+              <td class="bg-slate-50 text-[9px] font-semibold text-slate-600 px-2 py-0.5">
+                Summary of the facts, observations, statements, and investigative steps taken by requesting agency:
+              </td>
+            </tr>
+            <tr>
+              <td class="p-1.5">
+                <textarea name="narrative_text" id="narrative_text" rows="8" class="w-full text-[10px] leading-relaxed outline-none resize-none font-normal text-slate-900 bg-transparent" placeholder="Enter detailed narrative of observations, actions taken, interviews conducted, and initial findings..."></textarea>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Section: Provided Person / Vehicle Information -->
+        <div class="bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-[#1e293b]">
+          Provided Person / Vehicle Information:
+        </div>
+        <table class="w-full border-collapse border-grid text-[10px] mb-2 border-t-0">
+          <tbody>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[20%] whitespace-nowrap">Last/First Name:</td>
+              <td colspan="2" class="p-1 w-[30%]">
+                <input type="text" name="target_name" id="target_name" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[24%] whitespace-nowrap">DMV License / Other ID:</td>
+              <td colspan="2" class="p-1 w-[26%]">
+                <input type="text" name="target_dmv_id" id="target_dmv_id" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">TLC License Number:</td>
+              <td colspan="2" class="p-1">
+                <input type="text" name="target_tlc_num" id="target_tlc_num" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">License Plate / Medallion:</td>
+              <td colspan="2" class="p-1">
+                <input type="text" name="target_plate_medallion" id="target_plate_medallion" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">VIN:</td>
+              <td colspan="5" class="p-1">
+                <input type="text" name="target_vin" id="target_vin" class="w-full text-[10px] font-mono tracking-wider outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900 uppercase">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Vehicle Make:</td>
+              <td class="p-1 w-[20%]">
+                <input type="text" name="veh_make" id="veh_make" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[10%] whitespace-nowrap">Model:</td>
+              <td class="p-1 w-[20%]">
+                <input type="text" name="veh_model" id="veh_model" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[10%] whitespace-nowrap">Color:</td>
+              <td class="p-1 w-[20%]">
+                <input type="text" name="veh_color" id="veh_color" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Year:</td>
+              <td colspan="5" class="p-1">
+                <input type="text" name="veh_year" id="veh_year" maxlength="4" class="w-24 text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Page 1 Bottom Official Footer -->
+      <footer class="pt-2 border-t border-slate-400 flex items-center justify-between text-[9px] font-bold text-slate-700">
+        <div>Form # - Enf 100-035</div>
+        <div>Page 1</div>
+      </footer>
+    </div>
+
+    <!-- ========================================== PAGE 2 ========================================== -->
+    <div class="report-page flex flex-col justify-between" id="report-page-2">
+      <div>
+        <!-- Section: Investigative Steps -->
+        <div class="bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-[#1e293b]">
+          Investigative Steps:
+        </div>
+        <table class="w-full border-collapse border-grid text-[10px] mb-2 border-t-0">
+          <tbody>
+            <tr>
+              <td class="bg-slate-50 text-[9px] font-semibold text-slate-600 px-2 py-0.5">
+                Describe investigative actions, notifications, referrals and evidence collected
+              </td>
+            </tr>
+            <tr>
+              <td class="p-1.5">
+                <textarea name="investigative_steps_text" id="investigative_steps_text" rows="6" class="w-full text-[10px] leading-relaxed outline-none resize-none font-normal text-slate-900 bg-transparent" placeholder="Document databases queried (TLC TAMIS, NYSPIN, LexisNexis, FHV trip records), officer notifications, witness outreach, and evidence logged..."></textarea>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Section: Driver / Vehicle / Base Information -->
+        <div class="bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-[#1e293b]">
+          Driver / Vehicle / Base Information:
+        </div>
+        <table class="w-full border-collapse border-grid text-[10px] mb-2 border-t-0">
+          <tbody>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[24%] whitespace-nowrap">Registered Vehicle Owner:</td>
+              <td colspan="3" class="p-1">
+                <input type="text" name="reg_owner" id="reg_owner" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Vehicle License Plate:</td>
+              <td class="p-1 w-[38%]">
+                <input type="text" name="veh_plate" id="veh_plate" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[12%] whitespace-nowrap">State:</td>
+              <td class="p-1 w-[26%]">
+                <input type="text" name="veh_state" id="veh_state" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900 uppercase">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Dispatching Base:</td>
+              <td class="p-1">
+                <input type="text" name="dispatch_base" id="dispatch_base" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Contact Information:</td>
+              <td class="p-1">
+                <input type="text" name="base_contact" id="base_contact" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Driver Last/First Name:</td>
+              <td colspan="3" class="p-1">
+                <input type="text" name="driver_full_name" id="driver_full_name" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">DMV/Client ID:</td>
+              <td class="p-1">
+                <input type="text" name="driver_client_id" id="driver_client_id" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">State:</td>
+              <td class="p-1">
+                <input type="text" name="driver_state" id="driver_state" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900 uppercase">
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Gender:</td>
+              <td colspan="3" class="p-1">
+                <input type="text" name="driver_gender" id="driver_gender" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Section: Attachments / Supporting Documents -->
+        <div class="bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-[#1e293b]">
+          Attachments / Supporting Documents:
+        </div>
+        <table class="w-full border-collapse border-grid text-[10px] mb-2 border-t-0">
+          <tbody>
+            <tr>
+              <td class="bg-slate-50 text-[9px] font-semibold text-slate-600 px-2 py-0.5">
+                List attached photos, summonses, screenshots, trip records, DMV/TLC printouts, statements, or other supporting documents:
+              </td>
+            </tr>
+            <tr>
+              <td class="p-1.5">
+                <textarea name="attachments_text" id="attachments_text" rows="5" class="w-full text-[10px] leading-relaxed outline-none resize-none font-normal text-slate-900 bg-transparent" placeholder="1. Copy of Summon/Notice of Violation&#10;2. TLC Trip Records Export&#10;3. Street Surveillance Video Stills&#10;4. DMV Abstract"></textarea>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Section: Review / Signatures -->
+        <div class="bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-[#1e293b]">
+          Review / Signatures:
+        </div>
+        <table class="w-full border-collapse border-grid text-[10px] mb-2 border-t-0">
+          <tbody>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[24%] whitespace-nowrap">Prepared By Rank / Name:</td>
+              <td class="p-1 w-[32%]">
+                <input type="text" name="prep_by_name" id="prep_by_name" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <!-- Native Date Picker for Prepared By -->
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[8%] whitespace-nowrap">Date:</td>
+              <td class="p-1 w-[18%]">
+                <input type="date" name="prep_date" id="prep_date" onclick="this.showPicker()" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900 bg-transparent">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 w-[10%] whitespace-nowrap">Signature:</td>
+              <td class="p-1 w-[18%] relative group">
+                <div class="flex items-center justify-between">
+                  <span id="prep-sig-preview" class="font-serif italic text-blue-900 text-xs px-1 select-none"></span>
+                  <button type="button" onclick="openSignatureModal('prep')" class="no-print text-[8.5px] px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-700">Sign</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Reviewed by Supervisor:</td>
+              <td class="p-1">
+                <input type="text" name="reviewed_by_name" id="reviewed_by_name" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900">
+              </td>
+              <!-- Native Date Picker for Reviewed By -->
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Date:</td>
+              <td class="p-1">
+                <input type="date" name="review_date" id="review_date" onclick="this.showPicker()" class="w-full text-[10px] outline-none border-b border-transparent focus:border-blue-500 font-medium text-slate-900 bg-transparent">
+              </td>
+              <td class="bg-slate-100 font-bold px-1.5 py-1 text-slate-800 whitespace-nowrap">Signature:</td>
+              <td class="p-1 relative group">
+                <div class="flex items-center justify-between">
+                  <span id="review-sig-preview" class="font-serif italic text-blue-900 text-xs px-1 select-none"></span>
+                  <button type="button" onclick="openSignatureModal('review')" class="no-print text-[8.5px] px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-700">Sign</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Official Legal Disclaimer -->
+        <div class="border border-slate-500 p-2 text-[7.5px] leading-[1.3] text-slate-800 text-justify bg-slate-50/50 mt-2">
+          <div class="font-bold text-center text-[8.5px] uppercase tracking-wider mb-1 text-slate-900">
+            DISCLAIMER
+          </div>
+          This report was compiled from records maintained by the New York City Taxi and Limousine Commission (TLC) in the regular course of business. This report contains trip data records submitted to the TLC pursuant to TLC Rule sections 58-22, 59B-19, 59D-14 and 82-22. The trip data was not created by the TLC, and TLC makes no representations as to the accuracy of these data. The TLC cannot confirm whether any individual referenced herein was the actual operator of any referenced vehicle on the date(s) and time(s) identified or whether that individual was the individual who logged into the applicable taxi or for-hire vehicle technology system. The TLC employee providing this information is authorized only to compile the information and does not create, modify, or verify the underlying data.<br><br>
+          <span class="font-semibold text-slate-900">For further inquiries regarding TLC records, please contact the Office of Legal Affairs at (212) 676-1135.</span>
+        </div>
+      </div>
+
+      <!-- Page 2 Bottom Official Footer -->
+      <footer class="pt-2 border-t border-slate-400 flex items-center justify-between text-[9px] font-bold text-slate-700">
+        <div>Form # - Enf 100-035</div>
+        <div>Page 2</div>
+      </footer>
+    </div>
+  </form>
+
+  <!-- Signature Capture Modal (Interactive HTML5 Canvas) -->
+  <div id="signature-modal" class="no-print fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden transform transition-all">
+      <div class="bg-slate-900 px-4 py-3 text-white flex justify-between items-center">
+        <h3 class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          Officer Digital Signature
+        </h3>
+        <button type="button" onclick="closeSignatureModal()" class="text-slate-400 hover:text-white text-lg leading-none">&times;</button>
+      </div>
+
+      <div class="p-4">
+        <p class="text-xs text-slate-600 mb-2">Draw your signature below using mouse, pen, or finger:</p>
+        <div class="border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 relative touch-none">
+          <canvas id="sig-pad" class="w-full h-36 cursor-crosshair block rounded-lg"></canvas>
+          <div class="absolute bottom-3 left-4 right-4 border-b border-slate-300 pointer-events-none flex justify-between text-[10px] text-slate-400">
+            <span>X</span>
+            <span>Sign on line above</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-100 px-4 py-3 flex justify-between items-center border-t border-slate-200">
+        <button type="button" onclick="clearSignatureCanvas()" class="text-xs text-rose-600 hover:text-rose-800 font-medium">Clear Canvas</button>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeSignatureModal()" class="px-3 py-1.5 rounded text-xs text-slate-600 hover:bg-slate-200">Cancel</button>
+          <button type="button" onclick="applySignature()" class="px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm">Apply Signature</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Official Link & Deployment Modal -->
+  <div id="deploy-modal" class="no-print fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
+      <div class="px-5 py-4 bg-slate-800/90 border-b border-slate-700 flex justify-between items-center">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">How to Create an Official Link for Officers</h3>
+            <p class="text-[11px] text-slate-400">Deploy this file to an intranet, internal server, or secure link</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeDeployGuide()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+      </div>
+
+      <div class="p-5 text-xs text-slate-300 space-y-4 max-h-[75vh] overflow-y-auto">
+        <!-- Security & CJIS Note -->
+        <div class="p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 leading-relaxed">
+          <div class="font-bold flex items-center gap-1.5 text-xs text-emerald-300 mb-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            100% Client-Side Law Enforcement Privacy & CJIS Compliance
+          </div>
+          This single HTML file operates entirely within the officer's local browser memory. <strong>No sensitive case info, DMV IDs, VINs, or narratives are transmitted to external servers or cloud databases.</strong>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-100 text-xs mb-1.5 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px]">1</span>
+            Method A: Agency Intranet / Internal Server (Recommended for TLC / NYPD)
+          </h4>
+          <p class="leading-relaxed text-slate-400 ml-7">
+            Save this single file as <code class="text-amber-300 bg-slate-800 px-1 py-0.5 rounded">index.html</code> and upload it to your internal agency server (IIS, Apache, or a SharePoint document library). You can distribute an official internal URL such as:
+            <br>
+            <span class="inline-block mt-1 text-slate-200 bg-slate-800 px-2 py-1 rounded border border-slate-700 font-mono text-[11px]">https://intranet.tlc.nyc.gov/siu-report</span>
+          </p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-100 text-xs mb-1.5 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px]">2</span>
+            Method B: Free & Instant Secure Web Hosting (Cloudflare Pages or GitHub Pages)
+          </h4>
+          <p class="leading-relaxed text-slate-400 ml-7">
+            You can create a direct public or password-protected web link in 60 seconds:
+            <br>1. Download this file as <code class="text-amber-300 bg-slate-800 px-1 py-0.5 rounded">index.html</code>.
+            <br>2. Drag & drop the folder into <strong>Cloudflare Pages</strong> or <strong>GitHub Pages</strong>.
+            <br>3. You receive an instant HTTPS web address (e.g. <code class="text-emerald-300">https://tlc-siu.pages.dev</code>) accessible on any desktop, laptop, or mobile patrol MDT.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-100 text-xs mb-1.5 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px]">3</span>
+            How Officers Download & Retain Changes
+          </h4>
+          <div class="ml-7 space-y-2 text-slate-400">
+            <div>
+              <strong class="text-slate-200">• Final Official PDF:</strong> Click <span class="text-blue-400 font-semibold">"Download / Save PDF"</span>. In the browser dialog, select <em>Destination: Save as PDF</em>. The date pickers and signature will be permanently embedded in high resolution.
+            </div>
+            <div>
+              <strong class="text-slate-200">• Re-editable Drafts:</strong> Click <span class="text-emerald-400 font-semibold">"Save Case Data"</span> to download an encrypted-compatible local JSON file (<code class="text-slate-300">TLC-Case-XXXX.json</code>). Later, any officer or supervisor can click <span class="text-cyan-400 font-semibold">"Open Case"</span> to reload and continue editing.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 bg-slate-800/80 border-t border-slate-700 flex justify-end">
+        <button type="button" onclick="closeDeployGuide()" class="px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State management for digital signature modal
+    let currentSigningRole = 'prep'; // 'prep' or 'review'
+    const sigModal = document.getElementById('signature-modal');
+    const canvas = document.getElementById('sig-pad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let hasSignatureData = false;
+    let isFormLocked = false;
+
+    // Save filled report as a portable local JSON case file
+    function saveCaseFile() {
+      const form = document.getElementById('siu-form');
+      const formData = new FormData(form);
+      const data = {};
+      for (const [key, value] of formData.entries()) {
+        data[key] = value;
+      }
+      data.prep_sig = document.getElementById('prep-sig-preview').textContent;
+      data.review_sig = document.getElementById('review-sig-preview').textContent;
+
+      const caseNum = data.tlc_case_num ? data.tlc_case_num.replace(/[^a-zA-Z0-9_-]/g, '_') : 'Draft';
+      const fileName = `TLC_SIU_Report_${caseNum}_${new Date().toISOString().slice(0, 10)}.json`;
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Case data downloaded: ${fileName}`, 'success');
+    }
+
+    // Load an existing case file back into the form
+    function loadCaseFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          for (const key in data) {
+            const input = document.getElementsByName(key)[0];
+            if (input) {
+              input.value = data[key];
+            }
+          }
+          if (data.prep_sig) document.getElementById('prep-sig-preview').textContent = data.prep_sig;
+          if (data.review_sig) document.getElementById('review-sig-preview').textContent = data.review_sig;
+
+          showToast('Case report successfully loaded!', 'success');
+        } catch (err) {
+          showToast('Invalid case file format', 'info');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // Toggle Lock / Official Review Mode (removes borders/outlines for pristine look)
+    function toggleLockForm() {
+      isFormLocked = !isFormLocked;
+      const inputs = document.querySelectorAll('#siu-form input, #siu-form textarea, #siu-form select');
+      const lockBtnText = document.getElementById('lock-btn-text');
+
+      inputs.forEach(input => {
+        if (isFormLocked) {
+          input.setAttribute('readonly', 'true');
+          if (input.tagName === 'SELECT') input.setAttribute('disabled', 'true');
+          input.classList.add('cursor-default');
+        } else {
+          input.removeAttribute('readonly');
+          if (input.tagName === 'SELECT') input.removeAttribute('disabled');
+          input.classList.remove('cursor-default');
+        }
+      });
+
+      if (isFormLocked) {
+        lockBtnText.textContent = 'Unlock Form';
+        showToast('Form locked in Official Review Mode', 'info');
+      } else {
+        lockBtnText.textContent = 'Lock Form';
+        showToast('Form unlocked for editing', 'info');
+      }
+    }
+
+    // Automatic pre-flight before printing to PDF
+    function prepareAndPrint() {
+      showToast('Opening print dialog. Select "Save as PDF"...', 'info');
+      setTimeout(() => {
+        window.print();
+      }, 350);
+    }
+
+    // Deployment Modal controls
+    function openDeployGuide() {
+      document.getElementById('deploy-modal').classList.remove('hidden');
+      document.getElementById('deploy-modal').classList.add('flex');
+    }
+
+    function closeDeployGuide() {
+      document.getElementById('deploy-modal').classList.add('hidden');
+      document.getElementById('deploy-modal').classList.remove('flex');
+    }
+
+    // Toast Notification Utility (Replaces disruptive alert dialogs)
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMsg.textContent = message;
+      if (type === 'success') {
+        toastIcon.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`;
+      } else {
+        toastIcon.innerHTML = `<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    // Auto-adjust canvas coordinates
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#0f172a';
+    }
+
+    function openSignatureModal(role) {
+      currentSigningRole = role;
+      sigModal.classList.remove('hidden');
+      sigModal.classList.add('flex');
+      setTimeout(() => {
+        resizeCanvas();
+        clearSignatureCanvas();
+      }, 50);
+    }
+
+    function closeSignatureModal() {
+      sigModal.classList.add('hidden');
+      sigModal.classList.remove('flex');
+    }
+
+    function clearSignatureCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasSignatureData = false;
+    }
+
+    // Drawing Events for Mouse & Touch Screen
+    function getPointerPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      hasSignatureData = true;
+      const pos = getPointerPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      const pos = getPointerPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDrawing = false;
+    });
+
+    // Touch Support for mobile and touch monitors
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      isDrawing = true;
+      hasSignatureData = true;
+      const pos = getPointerPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const pos = getPointerPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => {
+      isDrawing = false;
+    });
+
+    function applySignature() {
+      if (!hasSignatureData) {
+        showToast('Please sign before applying', 'info');
+        return;
+      }
+      const previewSpan = document.getElementById(`${currentSigningRole}-sig-preview`);
+      const nameInput = document.getElementById(currentSigningRole === 'prep' ? 'prep_by_name' : 'reviewed_by_name');
+      const signerName = nameInput.value.trim() || (currentSigningRole === 'prep' ? 'Inv. Officer' : 'Supervisor');
+
+      previewSpan.textContent = `/${signerName}/ (Verified)`;
+      closeSignatureModal();
+      showToast(`Signature recorded for ${signerName}`, 'success');
+    }
+
+    // Demo Data Pre-filler for quick preview & testing
+    function populateDemoData() {
+      // Top Case Header
+      document.getElementById('tlc_case_num').value = '2026-SIU-04821';
+      document.getElementById('requesting_agency').value = 'NYPD 114th Pct';
+      document.getElementById('agency_report_num').value = 'UF-61 #2026-114-03291';
+      document.getElementById('agency_unit_squad').value = 'Detective Squad / Field Ops';
+      document.getElementById('officer_rank_name').value = 'Det. M. Ramirez #3914';
+      document.getElementById('incident_type').value = 'Unlicensed For-Hire Solicitation / Altercation';
+
+      // Date & Time pickers
+      document.getElementById('date_of_incident').value = '2026-09-18';
+      document.getElementById('time_of_incident').value = '22:45';
+
+      // Offense Location
+      document.getElementById('location_address').value = 'Queens Plaza South & 28th Street';
+      document.getElementById('borough').value = 'Queens';
+      document.getElementById('premises_type').value = 'Street / Transit Hub';
+      document.getElementById('precinct_sector').value = '114 Pct / Sector B';
+
+      // Narrative
+      document.getElementById('narrative_text').value = 
+        'On Friday, 09/18/2026 at approximately 22:45 hours, requesting officers observed subject operating a black 2024 Toyota Camry bearing TLC for-hire registration, actively soliciting street-hail passengers in the vicinity of Queens Plaza South without proper authorization. When approached for inspection, operator refused to present active credentials, accelerated across double-yellow lines, and was stopped two blocks west. Subject was identified and issued summonses for illegal street-hail solicitation and refusal to inspect. SIU requested to conduct comprehensive medallion, driver license, and trip record audit.';
+
+      // Target Person & Vehicle Info
+      document.getElementById('target_name').value = 'Sterling, Marcus J.';
+      document.getElementById('target_dmv_id').value = '983 204 118';
+      document.getElementById('target_tlc_num').value = '5920381';
+      document.getElementById('target_plate_medallion').value = 'T719482C';
+      document.getElementById('target_vin').value = '4T1B11HK5RU109284';
+      document.getElementById('veh_make').value = 'Toyota';
+      document.getElementById('veh_model').value = 'Camry Hybrid';
+      document.getElementById('veh_color').value = 'Black';
+      document.getElementById('veh_year').value = '2024';
+
+      // Page 2: Investigative Steps
+      document.getElementById('investigative_steps_text').value = 
+        '1. Queried TLC TAMIS Database: Verified driver license #5920381 was currently SUSPENDED for unpaid summonses effective 08/10/2026.\n' +
+        '2. Subpoenaed electronic dispatch logs from FastRide Base B02914; verified vehicle was NOT dispatched on a legitimate pre-arranged trip at 22:45 hrs.\n' +
+        '3. Cross-referenced GPS telemetry from in-vehicle telematics provider confirming idling and curb solicitation patterns between 22:15 and 22:45 hrs.\n' +
+        '4. Referred summons package to TLC Legal Bureau for expedited summary suspension proceeding.';
+
+      // Driver / Vehicle / Base Information
+      document.getElementById('reg_owner').value = 'Metro Fleet Holdings LLC';
+      document.getElementById('veh_plate').value = 'T719482C';
+      document.getElementById('veh_state').value = 'NY';
+      document.getElementById('dispatch_base').value = 'Skyline Dispatching Base (B02914)';
+      document.getElementById('base_contact').value = '(718) 555-0198 / ops@skylinecars.com';
+      document.getElementById('driver_full_name').value = 'Sterling, Marcus J.';
+      document.getElementById('driver_client_id').value = '983 204 118';
+      document.getElementById('driver_state').value = 'NY';
+      document.getElementById('driver_gender').value = 'Male';
+
+      // Supporting Documents
+      document.getElementById('attachments_text').value = 
+        '1. Copy of TLC Summons #C-10928301 (Illegal Street Hail)\n' +
+        '2. TAMIS License Status Abstract showing active suspension\n' +
+        '3. Telematics GPS timestamp log from 22:00 to 23:00 hrs\n' +
+        '4. Body-worn camera footage excerpt (NYPD 114 Pct)';
+
+      // Signatures
+      document.getElementById('prep_by_name').value = 'Investigator J. Novak #412';
+      document.getElementById('prep_date').value = '2026-09-21';
+      document.getElementById('prep-sig-preview').textContent = '/Inv. J. Novak #412/ (Verified)';
+
+      document.getElementById('reviewed_by_name').value = 'Supervising Inv. K. O\'Connor #108';
+      document.getElementById('review_date').value = '2026-09-22';
+      document.getElementById('review-sig-preview').textContent = '/Supv. K. O\'Connor #108/ (Verified)';
+
+      showToast('Form populated with demo investigative data!', 'success');
+    }
+
+    function clearForm() {
+      document.getElementById('siu-form').reset();
+      document.getElementById('prep-sig-preview').textContent = '';
+      document.getElementById('review-sig-preview').textContent = '';
+      showToast('Form cleared', 'info');
+    }
+
+    // Default dates to current date when opened
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('prep_date').value = today;
+      document.getElementById('review_date').value = today;
+    });
+  </script>
+</body>
+</html>
